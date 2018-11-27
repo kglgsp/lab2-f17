@@ -36,6 +36,7 @@ idtinit(void)
 void
 trap(struct trapframe *tf)
 {
+  uint newAddr, currentStack;
   if(tf->trapno == T_SYSCALL){
     if(myproc()->killed)
       exit();
@@ -77,7 +78,19 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
-
+  case T_PGFLT:
+	
+	newAddr = rcr2();
+	currentStack = USERTOP - (myproc()->stackPages * PGSIZE);
+	if(newAddr < currentStack && newAddr >= currentStack - PGSIZE)
+	{
+	  pde_t *newpgdir;
+	  newpgdir = myproc()->pgdir;
+	  if(allocuvm(newpgdir,PGROUNDDOWN(newAddr), currentStack) == 0 )
+		panic("Page fault, did not add to stack");
+	}
+	myproc()->stackPages++;
+	break;
   //PAGEBREAK: 13
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){
