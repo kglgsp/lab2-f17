@@ -86,8 +86,8 @@ trap(struct trapframe *tf)
 	{
 	  pde_t *newpgdir;
 	  newpgdir = myproc()->pgdir;
-	  if(allocuvm(newpgdir,PGROUNDDOWN(newAddr), currentStack) == 0 )
-		panic("Page fault, did not add to stack");
+	  if(allocuvm(newpgdir,PGROUNDDOWN(newAddr), currentStack)){}
+//		panic("Page fault, did not add to stack");
 	}
 	myproc()->stackPages++;
 	break;

@@ -321,7 +321,7 @@ copyuvm(pde_t *pgdir, uint sz)
   char *mem;
 
   if((d = setupkvm()) == 0)
-    return 0;
+   return 0;
   for(i = 0; i < sz; i += PGSIZE){
     if((pte = walkpgdir(pgdir, (void *) i, 0)) == 0)
       panic("copyuvm: pte should exist");
@@ -336,6 +336,7 @@ copyuvm(pde_t *pgdir, uint sz)
       goto bad;
   }
 
+  //stack pointer = the space from top of the stack to last process allocated
   uint sp = USERTOP - (myproc()->stackPages * PGSIZE);
   for(i = USERTOP; i > sp; i -= PGSIZE){
     if((pte = walkpgdir(pgdir, (void *) i, 0)) == 0)
@@ -347,6 +348,7 @@ copyuvm(pde_t *pgdir, uint sz)
     if((mem = kalloc()) == 0)
       goto bad;
     memmove(mem, (char*)P2V(pa), PGSIZE);
+    //must Rounddown i to allocated a clean page
     if(mappages(d, (void*)PGROUNDDOWN(i), PGSIZE, V2P(mem), flags) < 0)
       goto bad;
   }
