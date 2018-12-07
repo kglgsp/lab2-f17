@@ -337,6 +337,15 @@ copyuvm(pde_t *pgdir, uint sz)
   }
 
   //stack pointer = the space from top of the stack to last process allocated
+  //
+  //
+  /*
+ *
+ * made a for loop to take into consideration of the new stack location
+ * conditions are from USERTOP to the bottom of the stack
+ * body of the loop is the same EXCEPT we changed mappages argument to PGROUNDDOWN
+ * to allocate space downwards
+ */
   uint sp = USERTOP - (myproc()->stackPages * PGSIZE);
   for(i = USERTOP; i > sp; i -= PGSIZE){
     if((pte = walkpgdir(pgdir, (void *) i, 0)) == 0)

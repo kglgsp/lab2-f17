@@ -198,8 +198,13 @@ fork(void)
   }
   np->sz = curproc->sz;
 
+
+
+  //when forking...
   //child process must copy stackPages also
   np->stackPages = curproc->stackPages;
+
+
   np->parent = curproc;
   *np->tf = *curproc->tf;
 

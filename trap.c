@@ -78,18 +78,43 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
+
+
+
+  /*
+ * 
+ *made a case for page faults:
+
+ *
+ */
   case T_PGFLT:
 	
+	//got the address of the page causing page fault	
 	newAddr = rcr2();
+
+	/*
+ *
+ *
+ *
+ * 	Overall: 
+ * 	-Had to allocate spaces for the new page and put it on the bottom of the stack
+ 	-update table
+ * 	* 
+ */
 	currentStack = USERTOP - (myproc()->stackPages * PGSIZE);
+	//checks if the faulted page is allocatable
 	if(newAddr < currentStack && newAddr >= currentStack - PGSIZE)
 	{
 	  pde_t *newpgdir;
+	  //updating and allocating space on table if the page is available
 	  newpgdir = myproc()->pgdir;
 	  if(allocuvm(newpgdir,PGROUNDDOWN(newAddr), currentStack)){}
 //		panic("Page fault, did not add to stack");
 	}
+
+	//updating the position of the proc on page table
 	myproc()->stackPages++;
+
 	break;
   //PAGEBREAK: 13
   default:

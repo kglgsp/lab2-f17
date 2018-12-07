@@ -63,11 +63,30 @@ exec(char *path, char **argv)
 
   // Allocate two pages at the next page boundary.
   // Make the first inaccessible.  Use the second as the user stack.
-  //
-  curproc->stackPages = 1;
+  
+
+
+  /*
+ *These are the files that we changed:
+	1) exec.c, memlayout
+	2) proc.h, proc.c
+	3) syscall.c
+	4) vm.c
+	5) trap.c
+	
+ 
+Heres what we did in exec.c 
+ */
+  //added a stackPages variable in proc.h to resemble that the process is in stack
+  //initialized it to 1
+  curproc->stackPages = 1; 
   sz = PGROUNDUP(sz);
+
+  //we left sz as it is and changed sp to the top of KERNBASE - 4 (we called it USERTOP)
   if((sp = allocuvm(pgdir, USERTOP - PGSIZE, USERTOP)) == 0)
     goto bad;
+
+  //we made some page gap from the kernelbase and the starting of the stack
   clearpteu(pgdir, (char*)(sp - 2*PGSIZE));
 
   // Push argument strings, prepare rest of stack in ustack.
